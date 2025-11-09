@@ -1,0 +1,17 @@
+[
+  {
+    "name": "Arsenic",
+    "symptoms": ["vomiting", "abdominal pain", "diarrhea", "confusion"],
+    "tests": ["Urine arsenic test", "Blood arsenic level", "Hair analysis"]
+  },
+  {
+    "name": "Cyanide",
+    "symptoms": ["shortness of breath", "headache", "dizziness", "confusion"],
+    "tests": ["Blood cyanide test", "Oxygen saturation test"]
+  },
+  {
+    "name": "Mercury",
+    "symptoms": ["tremor", "memory loss", "irritability", "vision problems"],
+    "tests": ["Blood mercury test", "Urine mercury level"]
+  }
+]

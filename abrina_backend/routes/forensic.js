@@ -1,42 +1,73 @@
 import express from "express";
+import dotenv from "dotenv";
+import OpenAI from "openai";
+
+dotenv.config();
 const router = express.Router();
 
-router.get("/", (req, res) => {
-  res.send("✅ Forensic API is active. Use POST to send case data.");
+// Initialize OpenAI client with API key
+const client = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
 });
 
-router.post("/", (req, res) => {
-  const { caseId, name, answers = [] } = req.body;
+router.post("/", async (req, res) => {
+  try {
+    const { caseId, name, role, q1, q2, q3, q4 } = req.body;
 
-  let probablePoison = "Unknown";
-  let confidence = 70;
+    const prompt = `
+You are a forensic toxicologist AI assistant.
+Based on the following investigation report, decide:
+1. Whether poisoning is likely.
+2. What probable poison or chemical was found.
+3. What tests should be suggested.
+4. Give a confidence percentage (0–100).
 
-  if (answers.includes("discoloration of nails")) {
-    probablePoison = "Arsenic";
-    confidence = 92;
-  } else if (answers.includes("burning throat")) {
-    probablePoison = "Cyanide";
-    confidence = 89;
-  } else if (answers.includes("frothing at mouth")) {
-    probablePoison = "Pesticide";
-    confidence = 87;
+Respond ONLY in JSON format as:
+{
+  "isPoisonLikely": true/false,
+  "probablePoison": "name",
+  "suggestedTests": ["test1", "test2"],
+  "confidence": number
+}
+
+Investigation Report:
+Case ID: ${caseId}
+Investigator: ${name}
+Role: ${role}
+Sample details: ${q1}
+Detected chemical: ${q2}
+Found in: ${q3}
+Estimated time: ${q4}
+`;
+
+    const completion = await client.responses.create({
+      model: "gpt-4.1-mini",
+      input: prompt,
+    });
+
+    let text = completion.output_text.trim();
+    let result;
+
+    try {
+      result = JSON.parse(text);
+    } catch {
+      console.log("⚠️ AI response not JSON:", text);
+      result = {
+        isPoisonLikely: false,
+        probablePoison: "Unknown",
+        suggestedTests: [],
+        confidence: 0,
+      };
+    }
+
+    res.json(result);
+  } catch (err) {
+    console.error("❌ Backend Error:", err.message);
+    res.status(500).json({
+      error: "Server Error",
+      details: err.message,
+    });
   }
-
-  const result = {
-    role: "Forensic",
-    caseId,
-    name,
-    isPoisonLikely: probablePoison !== "Unknown",
-    probablePoison,
-    suggestedTests: [
-      "Hair and nail elemental analysis",
-      "Tissue digestion and ICP-MS test",
-      "Toxic metal residue screening"
-    ],
-    confidence
-  };
-
-  res.json(result);
 });
 
 export default router;
