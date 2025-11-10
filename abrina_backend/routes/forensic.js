@@ -1,8 +1,10 @@
-import express from "express";
+
 import dotenv from "dotenv";
-import OpenAI from "openai";
 
 dotenv.config();
+import OpenAI from "openai";
+import express from "express";
+
 const router = express.Router();
 
 // Initialize OpenAI client with API key

@@ -1,3 +1,7 @@
+import dotenv from "dotenv";
+dotenv.config();
+
+
 import express from "express";
 import cors from "cors";
 import doctorRoutes from "./routes/doctor.js";
@@ -6,8 +10,6 @@ import postmortemRoutes from "./routes/postmortem.js";
 import policeRoutes from "./routes/police.js";
 import analyzeRoutes from "./routes/analyze.js";
 
-import dotenv from "dotenv";
-dotenv.config();
 
 console.log("🔑 OpenAI Key Loaded:", process.env.OPENAI_API_KEY ? "Yes" : "No");
 
